@@ -1,0 +1,74 @@
+import SwiftUI
+
+struct ContentView: View {
+    @State private var precioVivienda: String = ""
+    @State private var porcentajeITP: String = ""
+    @State private var resultado: String = ""
+    
+    var body: some View {
+        NavigationView {
+            VStack(spacing: 20) {
+                TextField("Precio de la vivienda", text: $precioVivienda)
+                    .keyboardType(.decimalPad)
+                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                    .padding()
+                
+                TextField("Porcentaje de ITP", text: $porcentajeITP)
+                    .keyboardType(.decimalPad)
+                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                    .padding()
+                
+                Button("Calcular") {
+                    calcularGastos()
+                }
+                .padding()
+                .background(Color.blue)
+                .foregroundColor(.white)
+                .cornerRadius(10)
+                
+                Text(resultado)
+                    .padding()
+                    .multilineTextAlignment(.leading)
+                
+                Spacer()
+            }
+            .navigationTitle("Cálculo de Gastos")
+        }
+    }
+    
+    func calcularGastos() {
+        guard let precio = Double(precioVivienda), let itp = Double(porcentajeITP) else {
+            resultado = "Por favor, ingrese valores válidos."
+            return
+        }
+        
+        let impuestoITP = precio * (itp / 100)
+        let notaria: Double = 750
+        let registro: Double = 525
+        let gestoria: Double = 300
+        let tasacion: Double = 400
+        let totalSinAportacion = impuestoITP + notaria + registro + gestoria + tasacion
+        let aportacion20 = precio * 0.20
+        let totalGastos = totalSinAportacion + aportacion20
+        
+        resultado = """
+        ITP: \(impuestoITP, specifier: "%.2f") €
+        Notaría: \(notaria) €
+        Registro: \(registro) €
+        Gestoría: \(gestoria) €
+        Tasación: \(tasacion) €
+        Total antes de la aportación: \(totalSinAportacion, specifier: "%.2f") €
+        Aportación 20%: \(aportacion20, specifier: "%.2f") €
+        **Total Gastos:** \(totalGastos, specifier: "%.2f") €
+        """
+    }
+}
+
+@main
+struct ViviendaApp: App {
+    var body: some Scene {
+        WindowGroup {
+            ContentView()
+        }
+    }
+}
